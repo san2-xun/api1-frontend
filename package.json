@@ -9,7 +9,6 @@
     "deploy": "npm run build && npm run gh-pages",
     "dev": "npm run start:dev",
     "gh-pages": "gh-pages -d dist",
-    "i18n-remove": "pro i18n-remove --locale=zh-CN --write",
     "postinstall": "max setup",
     "jest": "jest",
     "lint": "npm run lint:js && npm run lint:prettier && npm run tsc",
@@ -36,16 +35,26 @@
   },
   "lint-staged": {
     "**/*.{js,jsx,ts,tsx}": "npm run lint-staged:js",
-    "**/*.{js,jsx,tsx,ts,less,md,json}": ["prettier --write"]
+    "**/*.{js,jsx,tsx,ts,less,md,json}": [
+      "prettier --write"
+    ]
   },
-  "browserslist": ["> 1%", "last 2 versions", "not ie <= 10"],
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 10"
+  ],
   "dependencies": {
     "@ant-design/icons": "^4.8.0",
     "@ant-design/pro-components": "^2.3.57",
     "@ant-design/use-emotion-css": "1.0.4",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
     "@umijs/route-utils": "^2.2.2",
     "antd": "^5.2.2",
     "classnames": "^2.3.2",
+    "eslint-plugin-eslint-comments": "^3.2.0",
+    "eslint-plugin-jest": "^27.2.1",
+    "eslint-plugin-unicorn": "^46.0.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
     "omit.js": "^2.0.2",
@@ -72,6 +81,7 @@
     "@umijs/max": "^4.0.52",
     "cross-env": "^7.0.3",
     "eslint": "^8.34.0",
+    "eslint-config-prettier": "^8.8.0",
     "express": "^4.18.2",
     "gh-pages": "^3.2.3",
     "husky": "^7.0.4",
@@ -85,5 +95,7 @@
     "typescript": "^4.9.5",
     "umi-presets-pro": "^2.0.2"
   },
-  "engines": { "node": ">=12.0.0" }
+  "engines": {
+    "node": ">=12.0.0"
+  }
 }
