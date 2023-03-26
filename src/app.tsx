@@ -7,8 +7,10 @@ import type { RunTimeLayoutConfig } from '@umijs/max';
 import { history, Link } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
 import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDropdown';
-import { errorConfig } from './requestErrorConfig';
+// import { errorConfig } from './requestConfig';
+import { requestConfig } from './requestConfig';
 import { currentUser as queryCurrentUser } from './services/ant-design-pro/api';
+import {getLoginUserUsingGET} from "@/services/api-backend/userController";
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -17,35 +19,52 @@ const loginPath = '/user/login';
  * */
 export async function getInitialState(): Promise<{
   settings?: Partial<LayoutSettings>;
-  currentUser?: API.CurrentUser;
+  currentUser?: API.UserVO;
   loading?: boolean;
-  fetchUserInfo?: () => Promise<API.CurrentUser | undefined>;
+  fetchUserInfo?: () => Promise<API.UserVO | undefined>;
 }> {
+  // 当页面首次加载时，获取要全局保存的数据，比如用户登录信息
   const fetchUserInfo = async () => {
     try {
-      const msg = await queryCurrentUser({
-        skipErrorHandler: true,
-      });
-      return msg.data;
+      const res = await getLoginUserUsingGET();  // /api/user/get/login
+      if (res.data) {
+        return res.data;
+      }
     } catch (error) {
       history.push(loginPath);
     }
     return undefined;
   };
-  // 如果不是登录页面，执行
-  const { location } = history;
-  if (location.pathname !== loginPath) {
-    const currentUser = await fetchUserInfo();
+
+  // 如果是登录页面，不用获取当前用户信息
+  if (history.location.pathname == loginPath) {
     return {
       fetchUserInfo,
-      currentUser,
       settings: defaultSettings as Partial<LayoutSettings>,
     };
   }
+  // const res = await getLoginUserUsingGET();
+  // 如果需要登录信息页面，要去获取当前用户信息
+  const res = await fetchUserInfo();
   return {
     fetchUserInfo,
+    currentUser: res? res: undefined,
     settings: defaultSettings as Partial<LayoutSettings>,
   };
+  // 如果不是登录页面，执行
+  // const { location } = history;
+  // if (location.pathname !== loginPath) {
+  //   const currentUser = await fetchUserInfo();
+  //   return {
+  //     fetchUserInfo,
+  //     currentUser,
+  //     settings: defaultSettings as Partial<LayoutSettings>,
+  //   };
+  // }
+  // return {
+  //   fetchUserInfo,
+  //   settings: defaultSettings as Partial<LayoutSettings>,
+  // };
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
@@ -53,14 +72,14 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
   return {
     actionsRender: () => [<Question key="doc" />],
     avatarProps: {
-      src: initialState?.currentUser?.avatar,
+      src: initialState?.currentUser?.userAvatar,
       title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
       },
     },
     waterMarkProps: {
-      content: initialState?.currentUser?.name,
+      content: initialState?.currentUser?.userName,
     },
     footerRender: () => <Footer />,
     onPageChange: () => {
@@ -129,7 +148,9 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  * @name request 配置，可以配置错误处理
  * 它基于 axios 和 ahooks 的 useRequest 提供了一套统一的网络请求和错误处理方案。
  * @doc https://umijs.org/docs/max/request#配置
- */
-export const request = {
-  ...errorConfig,
-};
+  */
+// export const request = {
+//   // ...errorConfig,
+//   ...requestConfig,
+// };
+export const request = requestConfig;
